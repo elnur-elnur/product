@@ -2,12 +2,14 @@ import ProductsList from "@/components/ProductsList";
 import { IProduct } from "@/interfaces/product";
 import {
   Container,
+  Divider,
   FormControl,
   Grid,
   InputLabel,
   MenuItem,
   Select,
   SelectChangeEvent,
+  Slider,
   Typography,
 } from "@mui/material";
 import { Inter } from "next/font/google";
@@ -18,6 +20,7 @@ const inter = Inter({ subsets: ["latin"] });
 export default function Home({ data }: { data: { products: IProduct[] } }) {
   const [filteredProducts, setfilteredProducts] = useState([]);
   const [brand, setBrand] = useState("");
+  const [price, setPrice] = useState<number[]>([0, 5000]);
 
   const memoziedBrands = useMemo<string[]>(() => {
     return [
@@ -25,11 +28,28 @@ export default function Home({ data }: { data: { products: IProduct[] } }) {
     ];
   }, []);
 
+  const memoziedPrice = useMemo<number[]>(() => {
+    const prices = data.products.map((product) => product.price);
+    return [Math.min(...prices), Math.max(...prices)];
+  }, []);
+
   const handleChangeBrand = (e: SelectChangeEvent) => {
     setBrand(e.target.value);
 
     setfilteredProducts(
-      data.products.filter((product) => product.brand === e.target.value)
+      data.products.filter(
+        (product: IProduct) => product.brand === e.target.value
+      )
+    );
+  };
+
+  const handleChangePrice = (value: number[]) => {
+    setPrice(value);
+    setfilteredProducts(
+      data.products.filter(
+        (product: IProduct) =>
+          product.price >= price[0] && product.price <= price[1]
+      )
     );
   };
 
@@ -54,6 +74,22 @@ export default function Home({ data }: { data: { products: IProduct[] } }) {
               })}
             </Select>
           </FormControl>
+
+          <Divider sx={{ my: 2 }}></Divider>
+
+          <Slider
+            getAriaLabel={() => "Minimum distance"}
+            value={price}
+            valueLabelDisplay="auto"
+            disableSwap
+            min={memoziedPrice[0]}
+            max={memoziedPrice[1]}
+            onChangeCommitted={(_, value) =>
+              handleChangePrice(value as number[])
+            }
+          />
+
+          <Divider sx={{ my: 2 }}></Divider>
         </Grid>
         <Grid item xs={8}>
           <Typography variant="h4" sx={{ mb: 3 }}>
