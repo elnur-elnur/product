@@ -7,6 +7,7 @@ import {
   Grid,
   InputLabel,
   MenuItem,
+  Rating,
   Select,
   SelectChangeEvent,
   Slider,
@@ -21,6 +22,7 @@ export default function Home({ data }: { data: { products: IProduct[] } }) {
   const [filteredProducts, setfilteredProducts] = useState([]);
   const [brand, setBrand] = useState("");
   const [price, setPrice] = useState<number[]>([0, 5000]);
+  const [rating, setRating] = useState<number | null>(null);
 
   const memoziedBrands = useMemo<string[]>(() => {
     return [
@@ -53,10 +55,18 @@ export default function Home({ data }: { data: { products: IProduct[] } }) {
     );
   };
 
+  const handleChangeRating = (value: number) => {
+    setRating(value);
+    setfilteredProducts(
+      data.products.filter((product: IProduct) => product.rating === value)
+    );
+  };
+
   return (
     <Container sx={{ py: 4 }}>
       <Grid container spacing={2}>
         <Grid item xs={4}>
+          <Typography sx={{ mb: 2 }}>Brand:</Typography>
           <FormControl fullWidth>
             <InputLabel>Brand</InputLabel>
             <Select
@@ -77,6 +87,7 @@ export default function Home({ data }: { data: { products: IProduct[] } }) {
 
           <Divider sx={{ my: 2 }}></Divider>
 
+          <Typography sx={{ mb: 2 }}>Price:</Typography>
           <Slider
             getAriaLabel={() => "Minimum distance"}
             value={price}
@@ -90,6 +101,15 @@ export default function Home({ data }: { data: { products: IProduct[] } }) {
           />
 
           <Divider sx={{ my: 2 }}></Divider>
+
+          <Typography sx={{ mb: 2 }}>Rating:</Typography>
+          <Rating
+            name="simple-controlled"
+            value={rating}
+            onChange={(_, value: number | null) =>
+              handleChangeRating(value as number)
+            }
+          />
         </Grid>
         <Grid item xs={8}>
           <Typography variant="h4" sx={{ mb: 3 }}>
