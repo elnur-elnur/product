@@ -30,6 +30,10 @@ export default function Home({ data }: { data: { products: IProduct[] } }) {
     ];
   }, []);
 
+  const all = useMemo<boolean>(() => {
+    return [brand, rating].some(Boolean);
+  }, [brand, rating]);
+
   const memoziedPrice = useMemo<number[]>(() => {
     const prices = data.products.map((product) => product.price);
     return [Math.min(...prices), Math.max(...prices)];
@@ -58,7 +62,7 @@ export default function Home({ data }: { data: { products: IProduct[] } }) {
   const handleChangeRating = (value: number) => {
     setRating(value);
     setfilteredProducts(
-      data.products.filter((product: IProduct) => product.rating === value)
+      data.products.filter((product: IProduct) => product.rating >= value)
     );
   };
 
@@ -116,11 +120,15 @@ export default function Home({ data }: { data: { products: IProduct[] } }) {
             Products
           </Typography>
 
-          <ProductsList
-            products={
-              filteredProducts.length ? filteredProducts : data.products
-            }
-          />
+          {all && !Boolean(filteredProducts.length) ? (
+            <Typography variant="body2">Mehsul tapilmadi</Typography>
+          ) : (
+            <ProductsList
+              products={
+                filteredProducts.length ? filteredProducts : data.products
+              }
+            />
+          )}
         </Grid>
       </Grid>
     </Container>
